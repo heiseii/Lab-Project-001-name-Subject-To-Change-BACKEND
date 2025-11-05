@@ -16,55 +16,52 @@ def register_api(request):
         try:
             
             #Recibir datos del front (Json)
-
             data = json.loads(request.body)
             username = data.get('username')
+            email = data.get('email')
             password = data.get('password')
-            email = data.get('email', '')
 
             #Validar que no se entreguen datos incorrectos
-
             
-            if not username or not password: 
+            if not password: 
                 return JsonResponse({
-                    'sucess' : False,
-                    'message': 'User and password required'
+                    'sucess': False,
+                    'message': 'Password is required'
 
                 }, status=400)  
 
-            if len(username) > 3 or len(username) > 20:
+            if not username or not email:
                 return JsonResponse({
                     'sucess': False,
-                    'mesagge' : 'The username needs to contain between 3 and 20 characters',
+                    'message': 'Username/email required'
+
+                }, status=400)
+
+            if username and (len(username) < 3 or len(username) > 20):
+                return JsonResponse({
+                    'sucess': False,
+                    'message': 'Invalid username length',
                 }, status = 400)
             
-            
-
-
-
-
-
                 #Validar que el usuario exista
 
             if User.objects.filter (username=username).exists():
                 return JsonResponse({
-                    'sucess' : False,
+                    'sucess': False,
                     'message': 'User already exists'
-
                 }, status = 400)
             
                 #Creacion de usuario exitosa
 
             user = User.objects.create_user(
                 username=username,
+                email=email,
                 password=password,
-                email=email
             )
 
             return JsonResponse ({
-                    'sucess' : True,
-                    'message': 'User was created satisfactorily',
-                    
+                'sucess': True,
+                'message': 'User was created successfully',
             }, status = 201)
         
         except Exception as e:
