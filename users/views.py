@@ -32,18 +32,7 @@ def register_api(request):
 
                 }, status=400)  
 
-            if len(username) > 3 or len(username) > 20:
-                return JsonResponse({
-                    'sucess': False,
-                    'mesagge' : 'The username needs to contain between 3 and 20 characters',
-                }, status = 400)
             
-            
-
-
-
-
-
                 #Validar que el usuario exista
 
             if User.objects.filter (username=username).exists():
