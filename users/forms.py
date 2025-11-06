@@ -42,5 +42,35 @@ class RegisterForm(forms.Form):
         error_messages={
             'required': 'The password is obligatory' 
         }
-)
+    )
     
+    email = forms.EmailField(
+        required=False,
+        error_messages={
+            'invalid': 'Use valid methods'
+        }
+    )
+
+
+    def clean_username(self):
+
+        # Esto ''limpia'' los datos ingresados por el usuario
+        username = self.cleaned_data.get ('username')
+
+        if User.objects.filter(username==username).exists:
+            raise ValidationError(
+                'The username already exists'
+            ) 
+        return username
+        
+
+    def clean_email(self):
+
+        # Esto ''limpia'' los datos ingresados por el usuario
+        email = self.cleaned_data.get ('email')
+
+        if User.objects.filter(email==email).exists:
+            raise ValidationError(
+                'The Email already exists'
+            )
+        return email
