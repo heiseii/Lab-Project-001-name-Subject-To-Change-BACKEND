@@ -1,11 +1,9 @@
 from django.shortcuts import render
-
-
-from django.shortcuts import render
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from users.forms import RegisterForm
 import json
 
 @csrf_exempt
@@ -17,10 +15,18 @@ def register_api(request):
             
             #Recibir datos del front (Json)
             data = json.loads(request.body)
-            username = data.get('username')
-            email = data.get('email')
-            password = data.get('password')
+            
 
+            #instancia del form con los datos
+            form = RegisterForm(data)
+
+            #validacion de formulario con data limpia
+            if form.is_valid():
+                username = form.cleaned_data['username']
+                password = form.cleaned_data['password']
+                email= form.cleaned_data['email']
+
+        
             #Validar que no se entreguen datos incorrectos
             
             if not password: 

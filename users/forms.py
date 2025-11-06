@@ -5,13 +5,14 @@ from django.core.exceptions import ValidationError
 import re
 
 #Valida que solo tenga letras, numeros y guion bajo
+
 def validate_username(value):
     if not re.match(r'^[a-zA-Z0-9_]+$', value):
         raise ValidationError ('The username only must to have letters, numbers and underscore (_).')
     
 #Validacion de password
 
-def validate_password_lenght(value):
+def validate_password_strenght(value):
     if len(value) < 8 and len(value) > 100:
         raise ValidationError ('Password needs to contain min. 8 characters and max. 100 characters')
     
@@ -22,7 +23,7 @@ def validate_password_lenght(value):
         raise ValidationError ('Password must to contain minimum one digit')
 
 
-#Formulario
+#Formulario de registro
 
 class RegisterForm(forms.Form):
     username = forms.CharField(
@@ -38,7 +39,7 @@ class RegisterForm(forms.Form):
 
     password = forms.CharField(
         min_length=8,
-        validators=[validate_password_lenght],
+        validators=[validate_password_strenght],
         error_messages={
             'required': 'The password is obligatory' 
         }
