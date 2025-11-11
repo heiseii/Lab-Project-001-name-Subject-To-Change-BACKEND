@@ -13,7 +13,7 @@ def validate_username(value):
 #Validacion de password
 
 def validate_password_strenght(value):
-    if len(value) < 8 and len(value) > 100:
+    if len(value) < 8 or len(value) > 100:
         raise ValidationError ('Password needs to contain min. 8 characters and max. 100 characters')
     
     if not any(c.isalpha() for c in value):
@@ -58,10 +58,10 @@ class RegisterForm(forms.Form):
         # Esto ''limpia'' los datos ingresados por el usuario
         username = self.cleaned_data.get ('username')
 
-        if User.objects.filter(username==username).exists:
+        if User.objects.filter(username=username).exists():
             raise ValidationError(
                 'The username already exists'
-            ) 
+            )
         return username
         
 
@@ -70,7 +70,7 @@ class RegisterForm(forms.Form):
         # Esto ''limpia'' los datos ingresados por el usuario
         email = self.cleaned_data.get ('email')
 
-        if User.objects.filter(email==email).exists:
+        if email and User.objects.filter(email=email).exists():
             raise ValidationError(
                 'The Email already exists'
             )
