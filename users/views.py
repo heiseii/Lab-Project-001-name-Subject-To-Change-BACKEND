@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from users.forms import RegisterForm
+from users.forms import RegisterForm #LoginForm
 import json
 
 @csrf_exempt
@@ -87,7 +87,12 @@ def register_api(request):
 @csrf_exempt
 def login_api(request):
     if request.method == 'POST':
+
+
         try:
+
+            
+
             data = json.loads(request.body)
             username = data.get ('username')
             password = data.get ('password')
