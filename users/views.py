@@ -12,52 +12,25 @@ import json
 def register_api(request):
     if request.method == 'POST':
         try:
-            
-            #Recibir datos del front (Json)
             data = json.loads(request.body)
             
-
-            #instancia del form con los datos
             form = RegisterForm(data)
 
-            #validacion de formulario con data limpia
-            if form.is_valid():
-                username = form.cleaned_data['username']
-                password = form.cleaned_data['password']
-                email= form.cleaned_data['email']
-
-        
-            #Validar que no se entreguen datos incorrectos
-            
-            if not password: 
+            if not form.is_valid():
                 return JsonResponse({
-                    'sucess': False,
-                    'message': 'Password is required'
-
-                }, status=400)  
-
-            if not username or not email:
-                return JsonResponse({
-                    'sucess': False,
-                    'message': 'Username/email required'
-
+                    'success': False,
+                    'errors': form.errors,
                 }, status=400)
 
-            if username and (len(username) < 3 or len(username) > 20):
-                return JsonResponse({
-                    'sucess': False,
-                    'message': 'Invalid username length',
-                }, status = 400)
-            
-                #Validar que el usuario exista
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
+            email = form.cleaned_data.get('email')
 
-            if User.objects.filter (username=username).exists():
+            if User.objects.filter(username=username).exists():
                 return JsonResponse({
-                    'sucess': False,
+                    'success': False,
                     'message': 'User already exists'
-                }, status = 400)
-            
-                #Creacion de usuario exitosa
+                }, status=400)
 
             user = User.objects.create_user(
                 username=username,
@@ -65,10 +38,14 @@ def register_api(request):
                 password=password,
             )
 
-            return JsonResponse ({
-                'sucess': True,
+            return JsonResponse({
+                'success': True,
                 'message': 'User was created successfully',
-            }, status = 201)
+                'user': {
+                    'username': user.username,
+                    'email': user.email,
+                }
+            }, status=201)
         
         except Exception as e:
             
