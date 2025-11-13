@@ -23,9 +23,9 @@ class Message (models.Model):
     conversation = models.ForeignKey(
         Conversation,
         on_delete=models.CASCADE,
-        related_name='message'
+        related_name='messages'
     )
-    send = models.ForeignKey(
+    sender = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name='sent_messages'
@@ -34,8 +34,8 @@ class Message (models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
     is_read = models.BooleanField(default=False)
 
-class Meta:
-    ordering = ['timestamp']
+    class Meta:
+        ordering = ['timestamp']
 
-    def __str__(self):
-        return f'{self.sender.username}: {self.content[50:]}'
+        def __str__(self):
+            return f'{self.sender.username}: {self.content[:50]}'

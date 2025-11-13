@@ -1,6 +1,4 @@
-from django.db import models
 from channels.generic.websocket import AsyncWebsocketConsumer
-from users.forms import forms
 import json
 from django.contrib.auth.models import User
 from channels.db import database_sync_to_async
@@ -27,7 +25,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
     #Funcion de desconectar
 
     async def disconnect(self, close_code):
-        await self.channel.layer.group_discard(
+        await self.channel_layer.group_discard(
             self.room_group_name,
             self.channel_name,
         )
@@ -35,7 +33,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
     #Funcion de recibir mensajes
 
     async def receive(self, text_data):
-        data = json.data(text_data)
+        data = json.loads(text_data)
         message_content = data['message']
         sender_id = data['sender_id']
 
@@ -51,20 +49,19 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 'timestamp': message['timestamp']
             }
         )       
-@database_sync_to_async
-
 async def chat_message(self, event):
         await self.send (text_data=json.dumps({
             'message': event['message'],
-            'self_id': event['self_id'],
+            'sender_id': event['sender_id'],
             'sender_username': event['sender_username'],
             'timestamp': event['timestamp'],
     }))
 
+@database_sync_to_async
 
 def save_message(self, sender_id, content):
         sender = User.objects.get(id=sender_id)
-        conversation = User.objecs.get(id=self.conversation_id)
+        conversation = User.objects.get(id=self.conversation_id)
 
         message = Message.objects.create(
             conversation=conversation,

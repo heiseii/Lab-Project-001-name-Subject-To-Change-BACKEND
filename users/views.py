@@ -51,12 +51,12 @@ def register_api(request):
         except Exception as e:
             
             return JsonResponse ({
-                'sucess': False,
+                'success': False,
                 'message':  (str(e))
                 }, status = 500)    
 
     return JsonResponse ({
-        'sucess': False,
+        'success': False,
         'message' : 'Method not allowed'
         }, status = 405)
 
@@ -68,9 +68,6 @@ def login_api(request):
 
 
         try:
-
-            
-
             data = json.loads(request.body)
             username = data.get ('username')
             password = data.get ('password')
@@ -81,7 +78,7 @@ def login_api(request):
             if user is not None:
                 login(request, user)
                 return JsonResponse({
-                    'sucess': True,
+                    'success': True,
                     'message': 'Sucessfull login',
                     'user': {
                     'username': user.username,
@@ -90,20 +87,20 @@ def login_api(request):
             })
             else: 
                 return JsonResponse ({
-                'sucess': False,
+                'success': False,
                 'message': 'Incorrect credentials'
             }, status=401)
 
 
         except Exception as e:
             return JsonResponse({
-                'sucess': False,
+                'success': False,
                 'message': str(e)
             }, status = 500)
 
 
-        return JsonResponse ({
-            'sucess': False,
+    return JsonResponse ({
+            'success': False,
             'message' : 'Method not allowed'
         }, status = 405)
     
@@ -150,7 +147,7 @@ def create_or_get_conversation(request):
                 conversation = Conversation.objects.create()
                 conversation.participants.add(user1, user2)
             return JsonResponse ({
-                'sucess': True,
+                'success': True,
                 'conversation_id': conversation.id,
                 'created_at': conversation.created_at.isoformat(),
             })
@@ -159,19 +156,19 @@ def create_or_get_conversation(request):
 
         except User.DoesNotExist:
             return JsonResponse({
-                'sucess': False,
+                'success': False,
                 'message': 'User does not exist',
             },status= 404)
         
         except Exception as e:
             return JsonResponse({
-                'sucess': False,
+                'success': False,
                 'message': str(e)
             }, status= 500)
 
         
     return JsonResponse({
-        'sucess': False,
+        'success': False,
         'message': 'Method not allowed',
     },status= 405)
 
@@ -179,7 +176,7 @@ def create_or_get_conversation(request):
 #Obtiene todos los mensajes
 def get_messages ( request, conversation_id):
     try:
-        conversation = conversation.objects.get(id=conversation_id)
+        conversation = Conversation.objects.get(id=conversation_id)
         messages = conversation.messages.all()
 
 #Saca la informacion de los mensajes 
@@ -190,23 +187,56 @@ def get_messages ( request, conversation_id):
                 'username':msg.sender.username
             },
             'is_read': msg.is_read,
-            'msg_content':msg.content,
+            'content':msg.content,
             'timestamp': msg.timestamp.isoformat(),
         }for msg in messages]
 
         return JsonResponse({
-            'sucess': True,
+            'success': True,
             'messages': messages_data
         })
 
 
     except Conversation.DoesNotExist:
         return JsonResponse ({
-            'sucess': False,
+            'success': False,
             'message': 'Conversation not found'
         },status = 404)
     except Exception as e:
         return JsonResponse({
-            'sucess': False,
+            'success': False,
             'message': str(e)
         }, status= 500)
+
+@csrf_exempt
+def get_user_conversations(request, user_id):
+    try:
+        user = User.objects.get(id=user_id)
+        conversations = user.conversations.all()
+
+        conversations_data = [{
+            'id': conv.id,
+            'participants': [{
+                'id': p.id,
+                'username': p.username
+            } for p in conv.participants.exclude(id=user_id)],
+            'last_message': conv.messages.last().content if conv.messages.exists() else None,
+            'updated_at': conv.updated_at.isoformat()
+        } for conv in conversations]
+
+        return JsonResponse({
+            'success': True,
+            'conversations': conversations_data
+        })
+
+    except User.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'message': 'User not found'
+        }, status=404)
+    
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': str(e)
+        }, status=500)
