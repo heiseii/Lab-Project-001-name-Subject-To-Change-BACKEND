@@ -5,7 +5,7 @@ import json
 from django.contrib.auth.models import User
 from channels.db import database_sync_to_async
 from .models import Message
-#from .models import Message, Conversation
+from .models import Message, Conversation
 
 
 class ChatConsumer(AsyncWebsocketConsumer):
@@ -51,8 +51,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 'timestamp': message['timestamp']
             }
         )       
-#@database_sync_to_async
-    async def chat_message(self, event):
+@database_sync_to_async
+
+async def chat_message(self, event):
         await self.send (text_data=json.dumps({
             'message': event['message'],
             'self_id': event['self_id'],
@@ -61,7 +62,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
     }))
 
 
-    def save_message(self, sender_id, content):
+def save_message(self, sender_id, content):
         sender = User.objects.get(id=sender_id)
         conversation = User.objecs.get(id=self.conversation_id)
 

@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from users.forms import RegisterForm #LoginForm
+from users.models import Conversation, Message
 import json
 
 @csrf_exempt
@@ -121,3 +122,91 @@ def logout_api(request):
         'success': False,
         'message': 'Method not allowed'
     }, status=405)
+
+#View de conversacion
+@csrf_exempt
+
+def create_or_get_conversation(request):
+    if request.method == 'POST':
+        try:
+
+            #definicion de usuarios
+            data = json.loads(request.body)
+            user1_id = data.get('user1_id')
+            user2_id = data.get('user2_id')
+
+            user1 = User.objects.get(id=user1_id)
+            user2 = User.objects.get(id=user2_id)
+
+            #busqueda de conversacion existente
+            conversation = Conversation.objects.filter(
+                participants= user1
+            ).filter(
+                participants=user2
+            ).first()
+
+            #creacion de conversacion si es que no se encuentra ya una
+            if not conversation:       
+                conversation = Conversation.objects.create()
+                conversation.participants.add(user1, user2)
+            return JsonResponse ({
+                'sucess': True,
+                'conversation_id': conversation.id,
+                'created_at': conversation.created_at.isoformat(),
+            })
+            
+
+
+        except User.DoesNotExist:
+            return JsonResponse({
+                'sucess': False,
+                'message': 'User does not exist',
+            },status= 404)
+        
+        except Exception as e:
+            return JsonResponse({
+                'sucess': False,
+                'message': str(e)
+            }, status= 500)
+
+        
+    return JsonResponse({
+        'sucess': False,
+        'message': 'Method not allowed',
+    },status= 405)
+
+@csrf_exempt
+#Obtiene todos los mensajes
+def get_messages ( request, conversation_id):
+    try:
+        conversation = conversation.objects.get(id=conversation_id)
+        messages = conversation.messages.all()
+
+#Saca la informacion de los mensajes 
+        messages_data = [{
+            'id': msg.sender.id,
+            'sender': {
+                'id': msg.sender.id,
+                'username':msg.sender.username
+            },
+            'is_read': msg.is_read,
+            'msg_content':msg.content,
+            'timestamp': msg.timestamp.isoformat(),
+        }for msg in messages]
+
+        return JsonResponse({
+            'sucess': True,
+            'messages': messages_data
+        })
+
+
+    except Conversation.DoesNotExist:
+        return JsonResponse ({
+            'sucess': False,
+            'message': 'Conversation not found'
+        },status = 404)
+    except Exception as e:
+        return JsonResponse({
+            'sucess': False,
+            'message': str(e)
+        }, status= 500)
