@@ -33,6 +33,10 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'corsheaders',
+    'django.contrib.sites',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -40,11 +44,18 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'users',
-    'channels'
+    'channels',
+    'allauth'
+]
+
+AUTHENTICATION_BACKENDS = [
+    'django.contribs.auth.backends.ModelBackend' # standart django backend
+    'allauth.account.auth_backends.AuthenticationBackend' # all-auth backend
 ]
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -126,6 +137,11 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+LOGOUT_REDIRECT = '/'
+LOGIN_REDIRECT = '/'
+SOCIALACCOUNT_LOGIN_ON_GET = True
+
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
@@ -138,3 +154,5 @@ CHANNEL_LAYERS = {
         'BACKEND': 'channels.layers.InMemoryChannelLayer'  
     }
 }
+
+SITE_ID = 1

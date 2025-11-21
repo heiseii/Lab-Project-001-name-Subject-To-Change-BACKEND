@@ -4,3 +4,4 @@ django-cors-headers==4.9.0
 sqlparse==0.5.3
 tzdata==2025.2
 daphne==4.2.1
+django-allauth==65.13.1
