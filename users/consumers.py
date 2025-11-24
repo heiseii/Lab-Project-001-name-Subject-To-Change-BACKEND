@@ -61,7 +61,7 @@ async def chat_message(self, event):
 
 def save_message(self, sender_id, content):
         sender = User.objects.get(id=sender_id)
-        conversation = User.objects.get(id=self.conversation_id)
+        conversation = Conversation.objects.get(id=self.conversation_id)
 
         message = Message.objects.create(
             conversation=conversation,

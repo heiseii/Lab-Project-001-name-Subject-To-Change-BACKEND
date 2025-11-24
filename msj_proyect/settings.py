@@ -49,8 +49,8 @@ INSTALLED_APPS = [
 ]
 
 AUTHENTICATION_BACKENDS = [
-    'django.contribs.auth.backends.ModelBackend' # standart django backend
-    'allauth.account.auth_backends.AuthenticationBackend' # all-auth backend
+    'django.contrib.auth.backends.ModelBackend', # standart django backend
+    'allauth.account.auth_backends.AuthenticationBackend', # all-auth backend
 ]
 
 MIDDLEWARE = [

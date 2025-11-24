@@ -240,3 +240,35 @@ def get_user_conversations(request, user_id):
             'success': False,
             'message': str(e)
         }, status=500)
+
+@csrf_exempt
+def search_users(request):
+    if request.method == 'GET':
+        try:
+            query = request.GET.get('query', '').strip()
+            if len(query) < 2:
+                return JsonResponse({
+                    'sucess': False,
+                    'message': 'Query must be at least 2 characters',
+                }, status=400)
+
+            current_user_id = request.GET.get('current_user_id')
+            users = User.object.filter(
+                username__icontains=query
+            ).exclude(id=current_user_id).values('id', 'username')[:10]
+
+            return JsonResponse({
+                'success': True,
+                'users': list(users)
+                })
+
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': str(e),
+            },status= 500)
+
+    return JsonResponse({
+        'success': False,
+        'message': 'Method not allowed',
+    }, status=405)

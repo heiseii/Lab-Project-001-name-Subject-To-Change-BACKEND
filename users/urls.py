@@ -10,4 +10,5 @@ path ('conversations/create/', views.create_or_get_conversation, name= 'create_c
 path ('user/<int:user_id>/conversations/', views.get_user_conversations, name='user_conversations'),
 path ('conversations/<int:conversation_id>/messages/', views.get_messages, name= 'get_messages'),
 
+path('search/', views.search_users, name='search_users'),
 ]
